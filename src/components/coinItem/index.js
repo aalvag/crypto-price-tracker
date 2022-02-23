@@ -26,7 +26,9 @@ const CoinItem = ({ marketCoin }) => {
     <Pressable
       style={styles.coinContainer}
       onPress={() => {
-        navigation.navigate("CoinDetail");
+        navigation.navigate("CoinDetail", {
+          coinId: id,
+        });
       }}
     >
       <Image

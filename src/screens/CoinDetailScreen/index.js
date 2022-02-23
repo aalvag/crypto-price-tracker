@@ -1,5 +1,6 @@
 import React from "react";
-import { Image, Text, View, Dimensions, TextInput } from "react-native";
+import { Text, View, Dimensions, TextInput } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LineChart } from "react-native-wagmi-charts";
 import CoinDetailHeader from "./components/CoinDetailHeader";
@@ -22,6 +23,9 @@ export default function CoinDetail() {
   const [usdValue, setUsdValue] = React.useState(
     current_price.usd.toFixed(2).toString()
   );
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { coinId } = route.params;
 
   const percentageColor =
     price_change_percentage_24h < 0 ? "red" : "green" || "white";
