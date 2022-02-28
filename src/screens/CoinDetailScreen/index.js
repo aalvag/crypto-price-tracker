@@ -1,36 +1,67 @@
 import React from "react";
-import { Text, View, Dimensions, TextInput } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  Text,
+  View,
+  Dimensions,
+  TextInput,
+  ActivityIndicator,
+} from "react-native";
+import { useRoute } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LineChart } from "react-native-wagmi-charts";
 import CoinDetailHeader from "./components/CoinDetailHeader";
-import coin from "../../../assets/data/crypto.json";
 import styles from "./styles";
+import { getCoinDetails, getCoinMarketChart } from "../../services/request";
 
 export default function CoinDetail() {
+  const route = useRoute();
+  const { coinId } = route.params;
+  const [coin, setCoin] = React.useState(null);
+  const [coinMarketData, setCoinMarketData] = React.useState(null);
+  const [coinValue, setCoinValue] = React.useState("1");
+  const [usdValue, setUsdValue] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchCoinDetails = async () => {
+    setLoading(true);
+    const coinDetails = await getCoinDetails(coinId);
+    setCoin(coinDetails);
+    setLoading(false);
+  };
+
+  const fetchCoinMarketChart = async () => {
+    const coinMarketChart = await getCoinMarketChart(coinId, "1");
+    setCoinMarketData(coinMarketChart);
+  };
+
+  React.useEffect(() => {
+    fetchCoinDetails();
+    fetchCoinMarketChart();
+  }, []);
+
+  if (loading || !coinMarketData || !coin) {
+    return <ActivityIndicator size="large" />;
+  }
+
   const {
+    id,
     image: { small },
-    symbol,
     name,
-    prices,
+    symbol,
     market_data: {
       market_cap_rank,
       current_price,
       price_change_percentage_24h,
     },
   } = coin;
-  const [coinValue, setCoinValue] = React.useState("1");
-  const [usdValue, setUsdValue] = React.useState(
-    current_price.usd.toFixed(2).toString()
-  );
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { coinId } = route.params;
+
+  const prices = coinMarketData?.prices;
 
   const percentageColor =
     price_change_percentage_24h < 0 ? "red" : "green" || "white";
 
-  const chartColor = current_price.usd > prices[0][1] ? "green" : "red";
+  const chartColor =
+    prices && current_price.usd > prices[0][1] ? "green" : "red";
 
   const screenWidth = Dimensions.get("window").width;
 
@@ -59,10 +90,11 @@ export default function CoinDetail() {
     const floatValue = parseFloat(value.replace(",", ".")) || 0;
     setCoinValue((floatValue / current_price.usd).toString());
   };
+
   return (
     <View style={{ paddingHorizontal: 10 }}>
       <LineChart.Provider
-        data={prices.map((price) => ({
+        data={prices?.map((price) => ({
           timestamp: price[0],
           value: price[1],
         }))}
@@ -123,7 +155,7 @@ export default function CoinDetail() {
             <TextInput
               keyboardType="numeric"
               onChangeText={changeUsdValue}
-              value={usdValue}
+              value={usdValue ? usdValue : current_price.usd.toString()}
               placeholder="0.00"
               style={styles.input}
               maxLength={15}

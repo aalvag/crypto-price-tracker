@@ -16,7 +16,10 @@ export default function CoinDetailHeader(props) {
         onPress={() => navigation.goBack()}
       />
       <View style={styles.tickerContainer}>
-        <Image source={{ uri: image }} style={styles.image} />
+        <Image
+          source={{ uri: image ? image : undefined }}
+          style={styles.image}
+        />
         <Text style={styles.symbol}>{symbol.toUpperCase()}</Text>
         <Text style={styles.rank}>#{marketCapRank}</Text>
       </View>
