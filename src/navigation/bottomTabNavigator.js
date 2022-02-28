@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import { Entypo, FontAwesome, Foundation } from "@expo/vector-icons";
+import WatchListScreen from "../screens/WatchListScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,6 +24,15 @@ const BottomTabNavigator = () => {
         options={{
           tabBarIcon: ({ focused, color }) => (
             <Entypo name="home" size={focused ? 30 : 25} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Watchlist"
+        component={WatchListScreen}
+        options={{
+          tabBarIcon: ({ focused, color }) => (
+            <FontAwesome name="star" size={focused ? 30 : 25} color={color} />
           ),
         }}
       />
